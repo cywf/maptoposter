@@ -5,6 +5,31 @@ Generate beautiful, minimalist map posters for any city in the world.
 <img src="posters/singapore_neon_cyberpunk_20260108_184503.png" width="250">
 <img src="posters/dubai_midnight_blue_20260108_174920.png" width="250">
 
+## 🌐 Web UI (GitHub Pages)
+
+**The easiest way to generate your poster!** 
+
+Visit our web interface at: **[https://cywf.github.io/maptoposter](https://cywf.github.io/maptoposter)** *(update this URL once Pages is deployed)*
+
+### How it Works
+
+1. **Visit the web UI** - Browse the theme gallery and see previews
+2. **Fill in your details** - Enter city, country, and choose your preferred theme
+3. **Submit** - Click "Generate Map Poster" to create a GitHub issue
+4. **Wait** - Our automated workflow generates your poster (typically 3-5 minutes)
+5. **Download** - Receive a comment with a private Gist link to download your custom poster
+
+The web UI uses an **issue-based workflow**: when you click "Generate Map Poster", you'll be redirected to GitHub to create an issue with your configuration. Our GitHub Actions bot processes the request and comments back with your download link.
+
+### Required Setup (for repository maintainers)
+
+To enable the web UI workflow, add this secret to your repository:
+
+- **`GIST_TOKEN`**: A GitHub Personal Access Token (PAT) with `gist` scope
+  - Go to GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
+  - Generate new token with `gist` scope
+  - Add it as a repository secret named `GIST_TOKEN`
+
 ## Examples
 
 
@@ -20,13 +45,15 @@ Generate beautiful, minimalist map posters for any city in the world.
 | Australia    | Melbourne      | forest          | <img src="posters/melbourne_forest_20260108_181459.png" width="250"> |
 | UAE          | Dubai          | midnight_blue   | <img src="posters/dubai_midnight_blue_20260108_174920.png" width="250"> |
 
-## Installation
+## CLI Installation & Usage
+
+For advanced users who prefer the command line:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Usage
+### CLI Usage
 
 ```bash
 python create_map_poster.py --city <city> --country <country> [options]

@@ -1,0 +1,82 @@
+name: Generate Theme Previews
+
+on:
+  workflow_dispatch:
+    inputs:
+      city:
+        description: 'City for preview generation'
+        required: false
+        default: 'San Francisco'
+      country:
+        description: 'Country for preview generation'
+        required: false
+        default: 'USA'
+      distance:
+        description: 'Distance in meters'
+        required: false
+        default: '10000'
+
+jobs:
+  generate-previews:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          # Install ImageMagick for resizing
+          sudo apt-get update
+          sudo apt-get install -y imagemagick
+      
+      - name: Generate preview for each theme
+        run: |
+          mkdir -p /tmp/previews
+          CITY="${{ github.event.inputs.city || 'San Francisco' }}"
+          COUNTRY="${{ github.event.inputs.country || 'USA' }}"
+          DISTANCE="${{ github.event.inputs.distance || '10000' }}"
+          
+          # Get list of themes
+          THEMES=$(ls themes/*.json | xargs -n1 basename | sed 's/.json//')
+          
+          for theme in $THEMES; do
+            echo "Generating preview for theme: $theme"
+            
+            # Generate poster
+            python create_map_poster.py \
+              --city "$CITY" \
+              --country "$COUNTRY" \
+              --theme "$theme" \
+              --distance "$DISTANCE" || continue
+            
+            # Get the generated file (most recent)
+            POSTER=$(ls -t posters/*.png | head -1)
+            
+            # Resize to preview size (300x400)
+            convert "$POSTER" -resize 300x400^ -gravity center -extent 300x400 \
+              "site/assets/theme-previews/${theme}.png"
+            
+            echo "✓ Created preview for $theme"
+            
+            # Clean up poster
+            rm "$POSTER"
+            
+            # Rate limit to avoid API issues
+            sleep 5
+          done
+      
+      - name: Commit previews
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add site/assets/theme-previews/*.png
+          git diff --quiet && git diff --staged --quiet || \
+            (git commit -m "Update theme preview images [skip ci]" && git push)
