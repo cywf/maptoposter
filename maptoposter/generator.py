@@ -262,7 +262,7 @@ def create_poster(city, country, theme, dist=29000, output_path=None,
         pbar.set_description("Downloading water features")
     try:
         water = ox.features_from_point(coords, tags={'natural': 'water', 'waterway': 'riverbank'}, dist=dist)
-    except:
+    except Exception:
         water = None
     if verbose:
         pbar.update(1)
@@ -273,7 +273,7 @@ def create_poster(city, country, theme, dist=29000, output_path=None,
         pbar.set_description("Downloading parks/green spaces")
     try:
         parks = ox.features_from_point(coords, tags={'leisure': 'park', 'landuse': 'grass'}, dist=dist)
-    except:
+    except Exception:
         parks = None
     if verbose:
         pbar.update(1)

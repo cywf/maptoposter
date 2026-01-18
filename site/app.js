@@ -38,7 +38,7 @@ function renderThemes() {
     }
 
     grid.innerHTML = themes.map(theme => `
-        <div class="theme-card" data-theme="${theme.theme}" onclick="selectTheme('${theme.theme}')">
+        <div class="theme-card" data-theme="${theme.theme}">
             <div class="theme-preview">
                 <img src="assets/theme-previews/${theme.theme}.png" 
                      alt="${theme.name}" 
@@ -50,6 +50,14 @@ function renderThemes() {
             </div>
         </div>
     `).join('');
+    
+    // Add event listeners after rendering
+    document.querySelectorAll('.theme-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const themeId = card.getAttribute('data-theme');
+            selectTheme(themeId);
+        });
+    });
 }
 
 // Select theme
@@ -136,6 +144,3 @@ user_agent: ${userAgent}`;
     // Redirect to GitHub
     window.location.href = issueUrl;
 }
-
-// Make selectTheme globally accessible
-window.selectTheme = selectTheme;

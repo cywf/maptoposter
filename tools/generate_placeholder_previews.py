@@ -34,7 +34,7 @@ def create_placeholder_preview(theme_id, theme_data, output_path):
     try:
         # Try to use a nice font, fallback to default
         font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 20)
-    except:
+    except (OSError, IOError):
         font = ImageFont.load_default()
     
     theme_name = theme_data.get('name', theme_id)
