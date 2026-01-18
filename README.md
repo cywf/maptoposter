@@ -9,7 +9,7 @@ Generate beautiful, minimalist map posters for any city in the world.
 
 **The easiest way to generate your poster!** 
 
-Visit our web interface at: **[https://cywf.github.io/maptoposter](https://cywf.github.io/maptoposter)** *(update this URL once Pages is deployed)*
+Visit our web interface at: **[https://cywf.github.io/maptoposter](https://cywf.github.io/maptoposter)** 
 
 ### How it Works
 
