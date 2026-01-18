@@ -1,0 +1,87 @@
+[
+  {
+    "theme": "autumn",
+    "name": "Autumn",
+    "description": "Burnt oranges, deep reds, golden yellows - seasonal warmth"
+  },
+  {
+    "theme": "blueprint",
+    "name": "Blueprint",
+    "description": "Classic architectural blueprint - technical drawing aesthetic"
+  },
+  {
+    "theme": "contrast_zones",
+    "name": "Contrast Zones",
+    "description": "Strong contrast showing urban density - darker in center, lighter at edges"
+  },
+  {
+    "theme": "copper_patina",
+    "name": "Copper Patina",
+    "description": "Oxidized copper aesthetic - teal-green patina with copper accents"
+  },
+  {
+    "theme": "feature_based",
+    "name": "Feature-Based Shading",
+    "description": "Different shades for different road types and features with clear hierarchy"
+  },
+  {
+    "theme": "forest",
+    "name": "Forest",
+    "description": "Deep greens and sage tones - organic botanical aesthetic"
+  },
+  {
+    "theme": "gradient_roads",
+    "name": "Gradient Roads",
+    "description": "Smooth gradient from dark center to light edges with subtle features"
+  },
+  {
+    "theme": "japanese_ink",
+    "name": "Japanese Ink",
+    "description": "Traditional ink wash inspired - minimalist with subtle red accent"
+  },
+  {
+    "theme": "midnight_blue",
+    "name": "Midnight Blue",
+    "description": "Deep navy background with gold/copper roads - luxury atlas aesthetic"
+  },
+  {
+    "theme": "monochrome_blue",
+    "name": "Monochrome Blue",
+    "description": "Single blue color family with varying saturation - clean and cohesive"
+  },
+  {
+    "theme": "neon_cyberpunk",
+    "name": "Neon Cyberpunk",
+    "description": "Dark background with electric pink/cyan - bold night city vibes"
+  },
+  {
+    "theme": "noir",
+    "name": "Noir",
+    "description": "Pure black background with white/gray roads - modern gallery aesthetic"
+  },
+  {
+    "theme": "ocean",
+    "name": "Ocean",
+    "description": "Various blues and teals - perfect for coastal cities"
+  },
+  {
+    "theme": "pastel_dream",
+    "name": "Pastel Dream",
+    "description": "Soft muted pastels with dusty blues and mauves - dreamy artistic aesthetic"
+  },
+  {
+    "theme": "sunset",
+    "name": "Sunset",
+    "description": "Warm oranges and pinks on soft peach - dreamy golden hour aesthetic"
+  },
+  {
+    "theme": "terracotta",
+    "name": "Terracotta",
+    "description": "Mediterranean warmth - burnt orange and clay tones on cream"
+  },
+  {
+    "theme": "warm_beige",
+    "name": "Warm Beige",
+    "description": "Earthy warm neutrals with sepia tones - vintage map aesthetic"
+  }
+]

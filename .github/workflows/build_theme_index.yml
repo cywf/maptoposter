@@ -1,0 +1,45 @@
+name: Build Theme Index
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'themes/**'
+      - 'tools/build_theme_index.py'
+  workflow_dispatch:
+
+jobs:
+  build-index:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Build theme index
+        run: |
+          python tools/build_theme_index.py
+      
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet site/themes/index.json; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Commit and push if changed
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add site/themes/index.json
+          git commit -m "Update theme index [skip ci]"
+          git push

@@ -1,0 +1,53 @@
+name: Deliver Poster via Gist
+
+on:
+  workflow_call:
+    inputs:
+      poster_path:
+        description: 'Path to the generated poster file'
+        required: true
+        type: string
+      poster_filename:
+        description: 'Filename for the poster in the gist'
+        required: true
+        type: string
+    outputs:
+      gist_url:
+        description: 'URL of the created secret gist'
+        value: ${{ jobs.create-gist.outputs.gist_url }}
+    secrets:
+      GIST_TOKEN:
+        description: 'GitHub PAT with gist scope'
+        required: true
+
+jobs:
+  create-gist:
+    runs-on: ubuntu-latest
+    outputs:
+      gist_url: ${{ steps.create.outputs.gist_url }}
+    
+    steps:
+      - name: Verify poster file exists
+        run: |
+          if [ ! -f "${{ inputs.poster_path }}" ]; then
+            echo "Error: Poster file not found at ${{ inputs.poster_path }}"
+            exit 1
+          fi
+          ls -lh "${{ inputs.poster_path }}"
+      
+      - name: Authenticate GitHub CLI
+        run: |
+          echo "${{ secrets.GIST_TOKEN }}" | gh auth login --with-token
+      
+      - name: Create secret gist
+        id: create
+        run: |
+          # Create private gist with the poster
+          gist_url=$(gh gist create \
+            --private \
+            --filename "${{ inputs.poster_filename }}" \
+            --desc "MapToPoster output - ${{ inputs.poster_filename }}" \
+            "${{ inputs.poster_path }}" | tail -n 1)
+          
+          echo "Gist created: $gist_url"
+          echo "gist_url=$gist_url" >> $GITHUB_OUTPUT

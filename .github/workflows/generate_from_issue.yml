@@ -1,0 +1,168 @@
+name: Generate Map from Issue
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  generate-poster:
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.body, 'JOB: MAPTOPOSTER')
+    
+    steps:
+      - name: Post initial status comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: '⏳ **Generating your map poster...**\n\nThis typically takes 3-5 minutes. Please wait...'
+            });
+      
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Parse issue body
+        id: parse
+        run: |
+          # Extract parameters from issue body
+          BODY="${{ github.event.issue.body }}"
+          
+          # Parse each field
+          CITY=$(echo "$BODY" | grep "^city:" | cut -d: -f2- | xargs)
+          COUNTRY=$(echo "$BODY" | grep "^country:" | cut -d: -f2- | xargs)
+          THEME=$(echo "$BODY" | grep "^theme:" | cut -d: -f2- | xargs)
+          DISTANCE=$(echo "$BODY" | grep "^distance:" | cut -d: -f2- | xargs)
+          
+          # Validate required fields
+          if [ -z "$CITY" ] || [ -z "$COUNTRY" ] || [ -z "$THEME" ]; then
+            echo "Error: Missing required fields (city, country, or theme)"
+            exit 1
+          fi
+          
+          # Validate distance
+          if [ -z "$DISTANCE" ]; then
+            DISTANCE=29000
+          fi
+          
+          # Ensure distance is within safe range
+          if [ "$DISTANCE" -lt 1000 ] || [ "$DISTANCE" -gt 50000 ]; then
+            echo "Error: Distance must be between 1000 and 50000 meters"
+            exit 1
+          fi
+          
+          # Check if theme exists
+          if [ ! -f "themes/${THEME}.json" ]; then
+            echo "Error: Theme '${THEME}' does not exist"
+            exit 1
+          fi
+          
+          # Output parsed values
+          echo "city=$CITY" >> $GITHUB_OUTPUT
+          echo "country=$COUNTRY" >> $GITHUB_OUTPUT
+          echo "theme=$THEME" >> $GITHUB_OUTPUT
+          echo "distance=$DISTANCE" >> $GITHUB_OUTPUT
+          
+          # Generate output filename
+          CITY_SLUG=$(echo "$CITY" | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          FILENAME="${CITY_SLUG}_${THEME}_${TIMESTAMP}.png"
+          echo "filename=$FILENAME" >> $GITHUB_OUTPUT
+          
+          echo "✓ Parsed parameters:"
+          echo "  City: $CITY"
+          echo "  Country: $COUNTRY"
+          echo "  Theme: $THEME"
+          echo "  Distance: $DISTANCE"
+          echo "  Output: $FILENAME"
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      
+      - name: Create output directory
+        run: |
+          mkdir -p /tmp/posters
+      
+      - name: Generate poster
+        id: generate
+        run: |
+          OUTPUT_PATH="/tmp/posters/${{ steps.parse.outputs.filename }}"
+          
+          python create_map_poster.py \
+            --city "${{ steps.parse.outputs.city }}" \
+            --country "${{ steps.parse.outputs.country }}" \
+            --theme "${{ steps.parse.outputs.theme }}" \
+            --distance "${{ steps.parse.outputs.distance }}"
+          
+          # The script generates the file in posters/ directory
+          # Move it to /tmp/posters
+          GENERATED_FILE=$(ls -t posters/*.png | head -1)
+          mv "$GENERATED_FILE" "$OUTPUT_PATH"
+          
+          echo "poster_path=$OUTPUT_PATH" >> $GITHUB_OUTPUT
+          echo "✓ Poster generated successfully at $OUTPUT_PATH"
+          
+          ls -lh "$OUTPUT_PATH"
+      
+      - name: Create secret gist and get URL
+        id: deliver
+        run: |
+          # Authenticate GitHub CLI
+          echo "${{ secrets.GIST_TOKEN }}" | gh auth login --with-token
+          
+          # Create private gist with the poster
+          gist_url=$(gh gist create \
+            --private \
+            --filename "${{ steps.parse.outputs.filename }}" \
+            --desc "MapToPoster output - ${{ steps.parse.outputs.filename }}" \
+            "${{ steps.generate.outputs.poster_path }}" | tail -n 1)
+          
+          echo "Gist created: $gist_url"
+          echo "gist_url=$gist_url" >> $GITHUB_OUTPUT
+      
+      - name: Comment success with gist URL
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const gistUrl = '${{ steps.deliver.outputs.gist_url }}';
+            const body = `✅ **Your poster is ready!**
+            
+            📥 **Download:** ${gistUrl}
+            
+            **Parameters:**
+            - City: ${{ steps.parse.outputs.city }}
+            - Country: ${{ steps.parse.outputs.country }}
+            - Theme: ${{ steps.parse.outputs.theme }}
+            - Distance: ${{ steps.parse.outputs.distance }}m
+            - Filename: \`${{ steps.parse.outputs.filename }}\`
+            
+            The gist is private and only accessible to you. Click the link to view and download your poster.`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+      
+      - name: Comment on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: '❌ **Poster generation failed**\n\nPlease check the workflow logs for details. Common issues:\n- Invalid city/country name\n- Theme not found\n- Distance out of range (1000-50000m)\n- Network issues with OpenStreetMap'
+            });

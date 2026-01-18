@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MapToPoster - Generate Beautiful City Map Posters</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🗺️ MapToPoster</h1>
+            <p class="subtitle">Generate beautiful, minimalist map posters for any city</p>
+        </header>
+
+        <main>
+            <section class="intro">
+                <p>Select a theme, enter your city details, and we'll generate a custom map poster for you. The generation happens via GitHub Actions and you'll receive a private Gist link with your poster.</p>
+            </section>
+
+            <section class="form-section">
+                <h2>Configuration</h2>
+                <form id="posterForm">
+                    <div class="form-group">
+                        <label for="city">City *</label>
+                        <input type="text" id="city" name="city" required placeholder="e.g., San Francisco">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="country">Country *</label>
+                        <input type="text" id="country" name="country" required placeholder="e.g., USA">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="distance">Distance (meters)</label>
+                        <input type="number" id="distance" name="distance" value="29000" min="1000" max="50000" step="1000">
+                        <small>Recommended: 4000-6000m for small cities, 8000-12000m for medium, 15000-20000m for large metros</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Selected Theme *</label>
+                        <div id="selectedTheme" class="selected-theme">
+                            <span class="no-selection">No theme selected. Please choose one below.</span>
+                        </div>
+                    </div>
+                </form>
+            </section>
+
+            <section class="themes-section">
+                <h2>Choose a Theme</h2>
+                <div id="themesGrid" class="themes-grid">
+                    <div class="loading">Loading themes...</div>
+                </div>
+            </section>
+
+            <section class="action-section">
+                <button id="generateBtn" class="generate-btn" disabled>
+                    Generate Map Poster
+                </button>
+                <p class="action-note">
+                    <strong>Note:</strong> You'll be redirected to GitHub to create an issue. After submission, our bot will generate your poster and comment with a download link (typically takes 3-5 minutes).
+                </p>
+            </section>
+
+            <section class="info-section">
+                <h2>How it works</h2>
+                <ol>
+                    <li>Fill in your city and country</li>
+                    <li>Choose a theme from the gallery below</li>
+                    <li>Click "Generate Map Poster"</li>
+                    <li>You'll be redirected to GitHub to submit an issue (requires GitHub login)</li>
+                    <li>Our automated workflow will generate your poster</li>
+                    <li>You'll receive a comment with a private Gist link to download your poster</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>Powered by <a href="https://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> • <a href="https://github.com/cywf/maptoposter" target="_blank">View on GitHub</a></p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
